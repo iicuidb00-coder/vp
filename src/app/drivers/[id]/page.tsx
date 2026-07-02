@@ -119,8 +119,12 @@ export default function DriverDetailPage() {
             엑셀 다운로드
           </button>
         </div>
-        <p className="mb-2 text-xs text-ink/40">항목을 클릭하면 날짜 수정, 메모, 교육 이수 체크가 가능합니다.</p>
-        <ViolationList violations={filtered} onSelect={setSelected} />
+        <p className="mb-2 text-xs text-ink/40">항목을 클릭하면 날짜·장소 수정, 교육 이수 체크가 가능합니다.</p>
+        <ViolationList
+          violations={filtered}
+          onSelect={setSelected}
+          extraInfo={(v) => `차량: ${vehicleNameOf(v.vehicleId)}`}
+        />
       </Card>
 
       <Card>

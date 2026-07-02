@@ -5,11 +5,14 @@ import { Violation } from "@/lib/types";
 import { updateViolation, deleteViolation } from "@/lib/firestore";
 import { CATEGORY_LABEL, getDetailLabel } from "@/lib/penaltyRules";
 
-function toDateInputValue(ms: number) {
+function toDatetimeLocalValue(ms: number) {
   const d = new Date(ms);
   const tzOffset = d.getTimezoneOffset() * 60000;
-  return new Date(ms - tzOffset).toISOString().slice(0, 10);
+  return new Date(ms - tzOffset).toISOString().slice(0, 16);
 }
+
+const fieldClass =
+  "w-full rounded-lg border border-line bg-white px-3 py-2 text-sm text-ink outline-none focus:border-navy-400 focus:ring-2 focus:ring-navy-100";
 
 export function ViolationEditModal({
   violation,
@@ -20,7 +23,8 @@ export function ViolationEditModal({
   onClose: () => void;
   onSaved: () => void;
 }) {
-  const [date, setDate] = useState(toDateInputValue(violation.createdAt));
+  const [occurredAt, setOccurredAt] = useState(toDatetimeLocalValue(violation.createdAt));
+  const [location, setLocation] = useState(violation.location ?? "");
   const [description, setDescription] = useState(violation.description ?? "");
   const [educationDone, setEducationDone] = useState(violation.educationDone);
   const [saving, setSaving] = useState(false);
@@ -28,9 +32,9 @@ export function ViolationEditModal({
   const onSave = async () => {
     setSaving(true);
     try {
-      const newMillis = new Date(`${date}T00:00:00`).getTime();
       await updateViolation(violation.id, {
-        createdAt: newMillis,
+        createdAt: new Date(occurredAt).getTime(),
+        location,
         description,
         educationDone,
       });
@@ -63,23 +67,30 @@ export function ViolationEditModal({
 
         <div className="mt-4 space-y-4">
           <div>
-            <label className="mb-1 block text-xs font-semibold text-ink/60">위반 날짜</label>
+            <label className="mb-1 block text-xs font-semibold text-ink/60">사건 발생 일시</label>
             <input
-              type="date"
-              className="w-full rounded-lg border border-line bg-white px-3 py-2 text-sm text-ink outline-none focus:border-navy-400 focus:ring-2 focus:ring-navy-100"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
+              type="datetime-local"
+              className={fieldClass}
+              value={occurredAt}
+              onChange={(e) => setOccurredAt(e.target.value)}
+            />
+          </div>
+
+          <div>
+            <label className="mb-1 block text-xs font-semibold text-ink/60">
+              사건 발생 장소 <span className="font-normal text-ink/40">(선택)</span>
+            </label>
+            <input
+              className={fieldClass}
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+              placeholder="예: 본당 주차장"
             />
           </div>
 
           <div>
             <label className="mb-1 block text-xs font-semibold text-ink/60">메모</label>
-            <textarea
-              className="w-full rounded-lg border border-line bg-white px-3 py-2 text-sm text-ink outline-none focus:border-navy-400 focus:ring-2 focus:ring-navy-100"
-              rows={3}
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-            />
+            <textarea className={fieldClass} rows={3} value={description} onChange={(e) => setDescription(e.target.value)} />
           </div>
 
           {violation.educationRequired && (

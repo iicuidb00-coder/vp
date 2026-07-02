@@ -35,5 +35,6 @@ export interface Violation {
   educationDone: boolean;
   status: "active" | "resolved";
   reportedBy: string;
-  createdAt: number;
+  createdAt: number;   // 사건 발생/등록 일시 (등록 시 직접 시·분까지 지정 가능, 미지정 시 등록 시각)
+  location?: string;   // 사건 발생 장소 (선택)
 }

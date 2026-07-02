@@ -23,6 +23,8 @@ export default function NewViolationPage() {
   const [detailType, setDetailType] = useState(DETAIL_OPTIONS.unreported[0]?.value ?? "");
   const [description, setDescription] = useState("");
   const [reportedBy, setReportedBy] = useState("");
+  const [occurredAt, setOccurredAt] = useState("");
+  const [location, setLocation] = useState("");
 
   useEffect(() => {
     (async () => {
@@ -67,6 +69,8 @@ export default function NewViolationPage() {
         detailType,
         description,
         reportedBy,
+        occurredAt: occurredAt ? new Date(occurredAt).getTime() : undefined,
+        location: location || undefined,
       });
       setResult(res.penaltyResult);
     } finally {
@@ -131,6 +135,31 @@ export default function NewViolationPage() {
                 <option key={opt.value} value={opt.value}>{opt.label}</option>
               ))}
             </select>
+          </div>
+
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div>
+              <label className="mb-1 block text-xs font-semibold text-ink/60">
+                사건 발생 일시 <span className="font-normal text-ink/40">(선택, 미입력 시 등록 시각)</span>
+              </label>
+              <input
+                type="datetime-local"
+                className={inputClass}
+                value={occurredAt}
+                onChange={(e) => setOccurredAt(e.target.value)}
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs font-semibold text-ink/60">
+                사건 발생 장소 <span className="font-normal text-ink/40">(선택)</span>
+              </label>
+              <input
+                className={inputClass}
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+                placeholder="예: 본당 주차장"
+              />
+            </div>
           </div>
 
           <div>

@@ -140,6 +140,8 @@ export async function registerViolation(input: {
   description?: string;
   photoUrl?: string;
   reportedBy: string;
+  occurredAt?: number; // 지정하지 않으면 현재 시각(serverTimestamp)으로 기록
+  location?: string;
 }) {
   const prior = await listViolationsByDriver(input.driverId);
   const priorCount = prior.filter((v) => v.category === input.category).length;
@@ -160,7 +162,8 @@ export async function registerViolation(input: {
     educationDone: false,
     status: "active",
     reportedBy: input.reportedBy,
-    createdAt: serverTimestamp(),
+    location: input.location || "",
+    createdAt: input.occurredAt ?? serverTimestamp(),
   });
 
   if (result.suspends) {

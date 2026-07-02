@@ -93,8 +93,12 @@ export default function VehicleDetailPage() {
             </button>
           ))}
         </div>
-        <p className="mb-2 text-xs text-ink/40">항목을 클릭하면 날짜 수정, 메모, 교육 이수 체크가 가능합니다.</p>
-        <ViolationList violations={filtered} onSelect={setSelected} />
+        <p className="mb-2 text-xs text-ink/40">항목을 클릭하면 날짜·장소 수정, 교육 이수 체크가 가능합니다.</p>
+        <ViolationList
+          violations={filtered}
+          onSelect={setSelected}
+          extraInfo={(v) => `운전자: ${driverNameOf(v.driverId)} · ${v.department}`}
+        />
       </Card>
 
       {selected && (
