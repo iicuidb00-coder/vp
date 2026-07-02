@@ -1,17 +1,16 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
 import { listVehicles, listDrivers, registerViolation } from "@/lib/firestore";
 import { Vehicle, Driver, ViolationCategory } from "@/lib/types";
 import { Card } from "@/components/ui/Card";
+import { Combobox } from "@/components/ui/Combobox";
 import { CATEGORY_LABEL, DETAIL_OPTIONS } from "@/lib/penaltyRules";
 
 const inputClass =
   "w-full rounded-lg border border-line bg-white px-3 py-2 text-sm text-ink outline-none transition focus:border-navy-400 focus:ring-2 focus:ring-navy-100";
 
 export default function NewViolationPage() {
-  const router = useRouter();
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [drivers, setDrivers] = useState<Driver[]>([]);
   const [loading, setLoading] = useState(true);
@@ -37,10 +36,13 @@ export default function NewViolationPage() {
     })();
   }, []);
 
-  const selectedDriver = useMemo(() => drivers.find((d) => d.id === driverId), [drivers, driverId]);
-  const departmentDrivers = useMemo(
-    () => (selectedDriver ? drivers.filter((d) => d.department === selectedDriver.department) : drivers),
-    [drivers, selectedDriver]
+  const vehicleOptions = useMemo(
+    () => vehicles.map((v) => ({ value: v.id, label: v.name, sublabel: v.plateNumber })),
+    [vehicles]
+  );
+  const driverOptions = useMemo(
+    () => drivers.map((d) => ({ value: d.id, label: d.name, sublabel: d.department })),
+    [drivers]
   );
 
   const detailOptions = DETAIL_OPTIONS[category];
@@ -86,21 +88,21 @@ export default function NewViolationPage() {
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
               <label className="mb-1 block text-xs font-semibold text-ink/60">차량</label>
-              <select className={inputClass} value={vehicleId} onChange={(e) => setVehicleId(e.target.value)} required>
-                <option value="">선택하세요</option>
-                {vehicles.map((v) => (
-                  <option key={v.id} value={v.id}>{v.name} ({v.plateNumber})</option>
-                ))}
-              </select>
+              <Combobox
+                options={vehicleOptions}
+                value={vehicleId}
+                onChange={setVehicleId}
+                placeholder="차량 선택 또는 검색"
+              />
             </div>
             <div>
               <label className="mb-1 block text-xs font-semibold text-ink/60">운전자</label>
-              <select className={inputClass} value={driverId} onChange={(e) => setDriverId(e.target.value)} required>
-                <option value="">선택하세요</option>
-                {departmentDrivers.map((d) => (
-                  <option key={d.id} value={d.id}>{d.name} ({d.department})</option>
-                ))}
-              </select>
+              <Combobox
+                options={driverOptions}
+                value={driverId}
+                onChange={setDriverId}
+                placeholder="운전자 선택 또는 검색"
+              />
             </div>
           </div>
 
@@ -155,7 +157,7 @@ export default function NewViolationPage() {
 
           <button
             type="submit"
-            disabled={submitting}
+            disabled={submitting || !vehicleId || !driverId}
             className="w-full rounded-lg bg-navy-600 py-2.5 text-sm font-semibold text-white transition hover:bg-navy-700 disabled:opacity-50"
           >
             {submitting ? "등록 중..." : "위반 등록"}

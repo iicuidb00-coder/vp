@@ -7,7 +7,7 @@ import { Driver, Violation } from "@/lib/types";
 import { Card } from "@/components/ui/Card";
 import { CategoryBadge } from "@/components/CategoryBadge";
 import { StatusPill } from "@/components/StatusPill";
-import { CATEGORY_LABEL } from "@/lib/penaltyRules";
+import { CATEGORY_LABEL, getDetailLabel } from "@/lib/penaltyRules";
 
 export default function DashboardPage() {
   const [violations, setViolations] = useState<Violation[]>([]);
@@ -128,7 +128,7 @@ export default function DashboardPage() {
               <li key={v.id} className="flex items-center justify-between py-3 text-sm">
                 <div className="flex items-center gap-3">
                   <CategoryBadge category={v.category} />
-                  <span className="text-ink/70">{v.detailType}</span>
+                  <span className="text-ink/70">{getDetailLabel(v.category, v.detailType)}</span>
                 </div>
                 <span className="text-xs text-ink/40">{new Date(v.createdAt).toLocaleDateString("ko-KR")}</span>
               </li>

@@ -49,6 +49,10 @@ export function getDetailOption(category: ViolationCategory, value: string): Det
   return DETAIL_OPTIONS[category].find((d) => d.value === value);
 }
 
+export function getDetailLabel(category: ViolationCategory, value: string): string {
+  return getDetailOption(category, value)?.label ?? value;
+}
+
 /**
  * 카테고리 + 세부항목 + 현재까지의 누적 경고 수(등록 전 기준)를 받아
  * 이번 위반 등록으로 인한 결과(새 경고 차수, 정지 여부, 벌칙 문구)를 계산한다.

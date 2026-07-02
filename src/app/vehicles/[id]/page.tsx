@@ -7,6 +7,7 @@ import { getVehicle, listViolationsByVehicle, listDrivers } from "@/lib/firestor
 import { Vehicle, Violation, ViolationCategory, Driver } from "@/lib/types";
 import { Card } from "@/components/ui/Card";
 import { ViolationList } from "@/components/ViolationList";
+import { ViolationEditModal } from "@/components/ViolationEditModal";
 import { CATEGORY_LABEL } from "@/lib/penaltyRules";
 import { violationsToRows, downloadViolationsExcel } from "@/lib/exportExcel";
 
@@ -19,18 +20,23 @@ export default function VehicleDetailPage() {
   const [drivers, setDrivers] = useState<Driver[]>([]);
   const [tab, setTab] = useState<ViolationCategory | "all">("all");
   const [loading, setLoading] = useState(true);
+  const [selected, setSelected] = useState<Violation | null>(null);
+
+  const load = async () => {
+    const [v, vi, d] = await Promise.all([
+      getVehicle(params.id),
+      listViolationsByVehicle(params.id),
+      listDrivers(),
+    ]);
+    setVehicle(v);
+    setViolations(vi);
+    setDrivers(d);
+  };
 
   useEffect(() => {
     (async () => {
       try {
-        const [v, vi, d] = await Promise.all([
-          getVehicle(params.id),
-          listViolationsByVehicle(params.id),
-          listDrivers(),
-        ]);
-        setVehicle(v);
-        setViolations(vi);
-        setDrivers(d);
+        await load();
       } finally {
         setLoading(false);
       }
@@ -87,8 +93,17 @@ export default function VehicleDetailPage() {
             </button>
           ))}
         </div>
-        <ViolationList violations={filtered} />
+        <p className="mb-2 text-xs text-ink/40">항목을 클릭하면 날짜 수정, 메모, 교육 이수 체크가 가능합니다.</p>
+        <ViolationList violations={filtered} onSelect={setSelected} />
       </Card>
+
+      {selected && (
+        <ViolationEditModal
+          violation={selected}
+          onClose={() => setSelected(null)}
+          onSaved={load}
+        />
+      )}
     </div>
   );
 }

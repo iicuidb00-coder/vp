@@ -14,6 +14,7 @@ import {
 import { Driver, Violation, ViolationCategory, Vehicle } from "@/lib/types";
 import { Card } from "@/components/ui/Card";
 import { ViolationList } from "@/components/ViolationList";
+import { ViolationEditModal } from "@/components/ViolationEditModal";
 import { StatusPill } from "@/components/StatusPill";
 import { CATEGORY_LABEL } from "@/lib/penaltyRules";
 import { violationsToRows, downloadViolationsExcel } from "@/lib/exportExcel";
@@ -29,24 +30,29 @@ export default function DriverDetailPage() {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [tab, setTab] = useState<ViolationCategory | "all">("all");
   const [loading, setLoading] = useState(true);
+  const [selected, setSelected] = useState<Violation | null>(null);
+
+  const load = async () => {
+    const d = await getDriver(params.id);
+    setDriver(d ? resolveDriverStatus(d) : null);
+    if (d) {
+      const [vi, deptVi, deptDr, veh] = await Promise.all([
+        listViolationsByDriver(params.id),
+        listViolationsByDepartment(d.department),
+        listDriversByDepartment(d.department),
+        listVehicles(),
+      ]);
+      setViolations(vi);
+      setDeptViolations(deptVi);
+      setDeptDrivers(deptDr.map(resolveDriverStatus));
+      setVehicles(veh);
+    }
+  };
 
   useEffect(() => {
     (async () => {
       try {
-        const d = await getDriver(params.id);
-        setDriver(d ? resolveDriverStatus(d) : null);
-        if (d) {
-          const [vi, deptVi, deptDr, veh] = await Promise.all([
-            listViolationsByDriver(params.id),
-            listViolationsByDepartment(d.department),
-            listDriversByDepartment(d.department),
-            listVehicles(),
-          ]);
-          setViolations(vi);
-          setDeptViolations(deptVi);
-          setDeptDrivers(deptDr.map(resolveDriverStatus));
-          setVehicles(veh);
-        }
+        await load();
       } finally {
         setLoading(false);
       }
@@ -113,7 +119,8 @@ export default function DriverDetailPage() {
             엑셀 다운로드
           </button>
         </div>
-        <ViolationList violations={filtered} />
+        <p className="mb-2 text-xs text-ink/40">항목을 클릭하면 날짜 수정, 메모, 교육 이수 체크가 가능합니다.</p>
+        <ViolationList violations={filtered} onSelect={setSelected} />
       </Card>
 
       <Card>
@@ -144,6 +151,14 @@ export default function DriverDetailPage() {
           ))}
         </ul>
       </Card>
+
+      {selected && (
+        <ViolationEditModal
+          violation={selected}
+          onClose={() => setSelected(null)}
+          onSaved={load}
+        />
+      )}
     </div>
   );
 }

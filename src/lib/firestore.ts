@@ -127,6 +127,10 @@ export async function listAllViolations(): Promise<Violation[]> {
 export async function deleteViolation(id: string) {
   return deleteDoc(doc(db, "violations", id));
 }
+
+export async function updateViolation(id: string, input: Partial<Omit<Violation, "id">>) {
+  return updateDoc(doc(db, "violations", id), input as any);
+}
 export async function registerViolation(input: {
   vehicleId: string;
   driverId: string;
