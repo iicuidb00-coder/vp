@@ -1,0 +1,24 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // 로그인한 관리자만 쓰기 가능, 읽기는 로그인 사용자 전체 허용
+    // 최소 구현: Firebase Auth 붙이기 전까지는 request.auth != null 조건만 사용
+    // 운영 전환 시 admins 컬렉션으로 role 체크를 추가하는 것을 권장합니다.
+
+    match /vehicles/{id} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    match /drivers/{id} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    match /violations/{id} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+  }
+}
