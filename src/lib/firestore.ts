@@ -95,25 +95,28 @@ export function resolveDriverStatus(d: Driver): Driver {
 }
 
 // ---------- Violations ----------
+// where + orderBy 조합은 Firestore 복합 인덱스가 필요하므로,
+// Firestore에서는 where만 사용하고 정렬은 클라이언트에서 처리합니다.
+function sortByCreatedAtDesc(list: Violation[]): Violation[] {
+  return list.slice().sort((a, b) => b.createdAt - a.createdAt);
+}
+
 export async function listViolationsByVehicle(vehicleId: string): Promise<Violation[]> {
-  const snap = await getDocs(
-    query(collection(db, "violations"), where("vehicleId", "==", vehicleId), orderBy("createdAt", "desc"))
-  );
-  return snap.docs.map((d) => ({ id: d.id, ...(d.data() as any), createdAt: toMillis(d.data().createdAt) }));
+  const snap = await getDocs(query(collection(db, "violations"), where("vehicleId", "==", vehicleId)));
+  const list = snap.docs.map((d) => ({ id: d.id, ...(d.data() as any), createdAt: toMillis(d.data().createdAt) }));
+  return sortByCreatedAtDesc(list);
 }
 
 export async function listViolationsByDriver(driverId: string): Promise<Violation[]> {
-  const snap = await getDocs(
-    query(collection(db, "violations"), where("driverId", "==", driverId), orderBy("createdAt", "desc"))
-  );
-  return snap.docs.map((d) => ({ id: d.id, ...(d.data() as any), createdAt: toMillis(d.data().createdAt) }));
+  const snap = await getDocs(query(collection(db, "violations"), where("driverId", "==", driverId)));
+  const list = snap.docs.map((d) => ({ id: d.id, ...(d.data() as any), createdAt: toMillis(d.data().createdAt) }));
+  return sortByCreatedAtDesc(list);
 }
 
 export async function listViolationsByDepartment(department: string): Promise<Violation[]> {
-  const snap = await getDocs(
-    query(collection(db, "violations"), where("department", "==", department), orderBy("createdAt", "desc"))
-  );
-  return snap.docs.map((d) => ({ id: d.id, ...(d.data() as any), createdAt: toMillis(d.data().createdAt) }));
+  const snap = await getDocs(query(collection(db, "violations"), where("department", "==", department)));
+  const list = snap.docs.map((d) => ({ id: d.id, ...(d.data() as any), createdAt: toMillis(d.data().createdAt) }));
+  return sortByCreatedAtDesc(list);
 }
 
 export async function listAllViolations(): Promise<Violation[]> {
