@@ -13,6 +13,7 @@ export interface Vehicle {
 export interface Driver {
   id: string;
   name: string;
+  position?: string; // 직책 (선택)
   department: string;
   phone?: string;
   status: DriverStatus;

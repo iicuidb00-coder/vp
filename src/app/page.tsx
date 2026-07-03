@@ -7,19 +7,25 @@ import { Driver, Violation } from "@/lib/types";
 import { Card } from "@/components/ui/Card";
 import { CategoryBadge } from "@/components/CategoryBadge";
 import { StatusPill } from "@/components/StatusPill";
+import { ViolationEditModal } from "@/components/ViolationEditModal";
 import { CATEGORY_LABEL, getDetailLabel } from "@/lib/penaltyRules";
 
 export default function DashboardPage() {
   const [violations, setViolations] = useState<Violation[]>([]);
   const [drivers, setDrivers] = useState<Driver[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selected, setSelected] = useState<Violation | null>(null);
+
+  const load = async () => {
+    const [v, d] = await Promise.all([listAllViolations(), listDrivers()]);
+    setViolations(v);
+    setDrivers(d.map(resolveDriverStatus));
+  };
 
   useEffect(() => {
     (async () => {
       try {
-        const [v, d] = await Promise.all([listAllViolations(), listDrivers()]);
-        setViolations(v);
-        setDrivers(d.map(resolveDriverStatus));
+        await load();
       } finally {
         setLoading(false);
       }
@@ -109,7 +115,7 @@ export default function DashboardPage() {
             {suspended.map((d) => (
               <li key={d.id} className="flex items-center justify-between py-3">
                 <Link href={`/drivers/${d.id}`} className="text-sm font-medium text-ink hover:text-navy-600">
-                  {d.name} <span className="text-ink/40">· {d.department}</span>
+                  {d.name}{d.position ? ` · ${d.position}` : ""} <span className="text-ink/40">· {d.department}</span>
                 </Link>
                 <StatusPill status={d.status} suspendedUntil={d.suspendedUntil} />
               </li>
@@ -120,22 +126,39 @@ export default function DashboardPage() {
 
       <Card>
         <h2 className="mb-3 text-sm font-bold text-ink">최근 등록된 위반</h2>
+        <p className="mb-2 text-xs text-ink/40">항목을 클릭하면 자세히 보고 수정할 수 있습니다.</p>
         {recent.length === 0 ? (
           <p className="py-6 text-center text-sm text-ink/40">등록된 위반이 없습니다.</p>
         ) : (
           <ul className="divide-y divide-line">
             {recent.map((v) => (
-              <li key={v.id} className="flex items-center justify-between py-3 text-sm">
+              <li
+                key={v.id}
+                onClick={() => setSelected(v)}
+                className="flex cursor-pointer items-center justify-between rounded-lg px-2 py-3 text-sm transition hover:bg-navy-50"
+              >
                 <div className="flex items-center gap-3">
                   <CategoryBadge category={v.category} />
                   <span className="text-ink/70">{getDetailLabel(v.category, v.detailType)}</span>
                 </div>
-                <span className="text-xs text-ink/40">{new Date(v.createdAt).toLocaleDateString("ko-KR")}</span>
+                <span className="text-xs text-ink/40">
+                  {new Date(v.createdAt).toLocaleString("ko-KR", {
+                    year: "numeric",
+                    month: "2-digit",
+                    day: "2-digit",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </span>
               </li>
             ))}
           </ul>
         )}
       </Card>
+
+      {selected && (
+        <ViolationEditModal violation={selected} onClose={() => setSelected(null)} onSaved={load} />
+      )}
     </div>
   );
 }

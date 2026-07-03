@@ -82,7 +82,10 @@ export default function DriverDetailPage() {
     <div className="space-y-6">
       <div className="flex items-start justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-navy-600">{driver.name}</h1>
+          <h1 className="text-2xl font-bold text-navy-600">
+            {driver.name}
+            {driver.position && <span className="ml-2 text-lg font-normal text-ink/50">· {driver.position}</span>}
+          </h1>
           <p className="mt-1 text-sm text-ink/50">{driver.department}</p>
         </div>
         <div className="flex items-center gap-2">
@@ -145,7 +148,7 @@ export default function DriverDetailPage() {
                 href={`/drivers/${d.id}`}
                 className={`font-medium hover:text-navy-600 ${d.id === driver.id ? "text-navy-600" : "text-ink"}`}
               >
-                {d.name}{d.id === driver.id ? " (본인)" : ""}
+                {d.name}{d.position ? ` · ${d.position}` : ""}{d.id === driver.id ? " (본인)" : ""}
               </Link>
               <div className="flex items-center gap-3">
                 <span className="text-xs text-ink/50">누적 {deptCountFor(d.id)}건</span>

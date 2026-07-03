@@ -74,6 +74,17 @@ export async function createDriver(input: Omit<Driver, "id" | "createdAt" | "sta
 }
 
 export async function updateDriver(id: string, input: Partial<Omit<Driver, "id" | "createdAt">>) {
+  // 부서(지파)가 변경되면, 이미 등록된 위반 기록들에 저장된 department 값도 함께 갱신합니다.
+  // (위반 기록에는 조회 편의를 위해 부서명을 복사해서 저장하고 있어서, 그대로 두면
+  //  대시보드/리포트의 부서별 집계가 예전 부서 기준으로 남아있게 됩니다.)
+  if (input.department) {
+    const existing = await listViolationsByDriver(id);
+    await Promise.all(
+      existing
+        .filter((v) => v.department !== input.department)
+        .map((v) => updateDoc(doc(db, "violations", v.id), { department: input.department }))
+    );
+  }
   return updateDoc(doc(db, "drivers", id), input);
 }
 

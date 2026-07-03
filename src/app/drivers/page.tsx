@@ -53,7 +53,9 @@ export default function DriversPage() {
             <LinkCard key={d.id} href={`/drivers/${d.id}`}>
               <div className="flex items-start justify-between">
                 <div>
-                  <p className="text-base font-bold text-ink">{d.name}</p>
+                  <p className="text-base font-bold text-ink">
+                    {d.name}{d.position ? <span className="ml-1 text-sm font-normal text-ink/50">· {d.position}</span> : ""}
+                  </p>
                   <p className="text-xs text-ink/50">{d.department} · 누적 {countFor(d.id)}건</p>
                 </div>
                 <StatusPill status={d.status} suspendedUntil={d.suspendedUntil} />

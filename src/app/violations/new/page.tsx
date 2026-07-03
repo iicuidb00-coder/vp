@@ -43,7 +43,12 @@ export default function NewViolationPage() {
     [vehicles]
   );
   const driverOptions = useMemo(
-    () => drivers.map((d) => ({ value: d.id, label: d.name, sublabel: d.department })),
+    () =>
+      drivers.map((d) => ({
+        value: d.id,
+        label: d.name,
+        sublabel: d.position ? `${d.department} · ${d.position}` : d.department,
+      })),
     [drivers]
   );
 

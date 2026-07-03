@@ -11,6 +11,7 @@ const inputClass =
 export default function NewDriverPage() {
   const router = useRouter();
   const [name, setName] = useState("");
+  const [position, setPosition] = useState("");
   const [department, setDepartment] = useState("");
   const [phone, setPhone] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -22,7 +23,7 @@ export default function NewDriverPage() {
     setSubmitting(true);
     setError(null);
     try {
-      await createDriver({ name, department, phone: phone || undefined });
+      await createDriver({ name, position: position || undefined, department, phone: phone || undefined });
       router.push("/drivers");
     } catch (err: any) {
       setError(err?.message ?? "등록 중 오류가 발생했습니다.");
@@ -40,15 +41,28 @@ export default function NewDriverPage() {
 
       <Card>
         <form onSubmit={onSubmit} className="space-y-5">
-          <div>
-            <label className="mb-1 block text-xs font-semibold text-ink/60">이름</label>
-            <input
-              className={inputClass}
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="예: 홍길동"
-              required
-            />
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div>
+              <label className="mb-1 block text-xs font-semibold text-ink/60">이름</label>
+              <input
+                className={inputClass}
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="예: 홍길동"
+                required
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs font-semibold text-ink/60">
+                직책 <span className="font-normal text-ink/40">(선택)</span>
+              </label>
+              <input
+                className={inputClass}
+                value={position}
+                onChange={(e) => setPosition(e.target.value)}
+                placeholder="예: 부장, 총무"
+              />
+            </div>
           </div>
           <div>
             <label className="mb-1 block text-xs font-semibold text-ink/60">소속 부서(지파)</label>

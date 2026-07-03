@@ -15,6 +15,7 @@ export default function EditDriverPage() {
   const router = useRouter();
   const [driver, setDriver] = useState<Driver | null>(null);
   const [name, setName] = useState("");
+  const [position, setPosition] = useState("");
   const [department, setDepartment] = useState("");
   const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState(true);
@@ -26,6 +27,7 @@ export default function EditDriverPage() {
     setDriver(d);
     if (d) {
       setName(d.name);
+      setPosition(d.position ?? "");
       setDepartment(d.department);
       setPhone(d.phone ?? "");
     }
@@ -47,7 +49,7 @@ export default function EditDriverPage() {
     setSubmitting(true);
     setError(null);
     try {
-      await updateDriver(params.id, { name, department, phone: phone || undefined });
+      await updateDriver(params.id, { name, position: position || undefined, department, phone: phone || undefined });
       router.push(`/drivers/${params.id}`);
     } catch (err: any) {
       setError(err?.message ?? "저장 중 오류가 발생했습니다.");
@@ -109,9 +111,17 @@ export default function EditDriverPage() {
 
       <Card>
         <form onSubmit={onSubmit} className="space-y-5">
-          <div>
-            <label className="mb-1 block text-xs font-semibold text-ink/60">이름</label>
-            <input className={inputClass} value={name} onChange={(e) => setName(e.target.value)} required />
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div>
+              <label className="mb-1 block text-xs font-semibold text-ink/60">이름</label>
+              <input className={inputClass} value={name} onChange={(e) => setName(e.target.value)} required />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs font-semibold text-ink/60">
+                직책 <span className="font-normal text-ink/40">(선택)</span>
+              </label>
+              <input className={inputClass} value={position} onChange={(e) => setPosition(e.target.value)} placeholder="예: 부장, 총무" />
+            </div>
           </div>
           <div>
             <label className="mb-1 block text-xs font-semibold text-ink/60">소속 부서(지파)</label>
