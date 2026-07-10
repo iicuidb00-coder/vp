@@ -26,6 +26,7 @@ export const DETAIL_OPTIONS: Record<ViolationCategory, DetailOption[]> = {
     { value: "no_fuel", label: "미주유", threshold: 3, needsEducation: false, needsBranchReport: false },
     { value: "no_hipass_charge", label: "하이패스 미충전", threshold: 3, needsEducation: false, needsBranchReport: false },
     { value: "unreported_extension", label: "사전 소통 없이 연장 사용", threshold: 3, needsEducation: false, needsBranchReport: false },
+    { value: "unreported_use", label: "차량 미보고 사용", threshold: 3, needsEducation: false, needsBranchReport: false },
   ],
   negligence: [
     { value: "hipass_unpaid", label: "하이패스 미납", threshold: 2, needsEducation: true, needsBranchReport: false },
